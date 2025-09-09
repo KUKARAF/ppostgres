@@ -19,11 +19,24 @@ RUN cd /tmp && \
     cd / && \
     rm -rf /tmp/pgvector
 
-# Copy the backup file
-COPY backup.sql /docker-entrypoint-initdb.d/01-backup.sql
-
 # Copy the setup script
 COPY setup-polish.sh /docker-entrypoint-initdb.d/02-setup-polish.sh
+
+# Create a directory for optional backup mounting
+RUN mkdir -p /opt/backup
+
+# Copy default backup file (can be overridden by volume mount)
+COPY backup.sql /opt/backup/backup.sql
+
+# Create a script to conditionally load backup
+RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo 'if [ -f /opt/backup/backup.sql ]; then' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo '  echo "Loading backup from /opt/backup/backup.sql"' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo '  psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /opt/backup/backup.sql' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo 'else' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo '  echo "No backup file found at /opt/backup/backup.sql"' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    echo 'fi' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
+    chmod +x /docker-entrypoint-initdb.d/01-load-backup.sh
 
 # Make the script executable
 RUN chmod +x /docker-entrypoint-initdb.d/02-setup-polish.sh
