@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     postgresql-contrib \
     build-essential \
     git \
-    postgresql-server-dev-15 \
+    postgresql-server-dev-all \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pgvector extension
