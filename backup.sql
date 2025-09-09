@@ -1,6 +1,10 @@
 -- Example backup.sql for testing Polish text search with langchain embeddings
 -- This creates the langchain_pg_embedding table and inserts sample Polish data
 
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- Create the langchain_pg_embedding table
 CREATE TABLE IF NOT EXISTS langchain_pg_embedding (
     id SERIAL PRIMARY KEY,
@@ -40,8 +44,4 @@ INSERT INTO langchain_pg_embedding (collection_id, document, cmetadata) VALUES
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_langchain_collection_id ON langchain_pg_embedding(collection_id);
-CREATE INDEX IF NOT EXISTS idx_langchain_document_gin ON langchain_pg_embedding USING gin(to_tsvector('polish', document));
-
--- Grant permissions
-GRANT ALL PRIVILEGES ON TABLE langchain_pg_embedding TO postgres;
-GRANT USAGE, SELECT ON SEQUENCE langchain_pg_embedding_id_seq TO postgres;
+CREATE INDEX IF NOT EXISTS idx_langchain_document_gin ON langchain_pg_embedding USING gin(to_tsvector('pl_ispell', document));
