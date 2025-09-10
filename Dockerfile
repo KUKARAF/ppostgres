@@ -39,7 +39,7 @@ RUN echo '#!/bin/bash' > /docker-entrypoint-initdb.d/01-load-backup.sh && \
     echo '  echo "Loading backup from /opt/backup/backup.sql"' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
     echo '  psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f /opt/backup/backup.sql' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
     echo 'else' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
-    echo '  echo "No backup file found at /opt/backup/backup.sql"' >> /docker-entrypoint-initdb.sh && \
+    echo '  echo "No backup file found at /opt/backup/backup.sql"' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
     echo 'fi' >> /docker-entrypoint-initdb.d/01-load-backup.sh && \
     chmod +x /docker-entrypoint-initdb.d/01-load-backup.sh
 
